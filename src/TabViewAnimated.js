@@ -2,7 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Animated, Platform, View, StyleSheet } from 'react-native';
+import { Animated, Platform, View, StyleSheet, Dimensions } from 'react-native';
 import { NavigationStatePropType } from './TabViewPropTypes';
 import type {
   Scene,
@@ -46,10 +46,16 @@ type State = {
 };
 
 let TabViewPager;
+let initialLayout = { width: 0, height: 0 };
 
 switch (Platform.OS) {
   case 'android':
     TabViewPager = require('./TabViewPagerAndroid').default;
+    // fixes several bugs #297, #225, #312
+    initialLayout = {
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    };
     break;
   case 'ios':
     TabViewPager = require('./TabViewPagerScroll').default;
@@ -82,10 +88,7 @@ export default class TabViewAnimated<T: Route<*>> extends PureComponent<
 
   static defaultProps = {
     renderPager: (props: SceneRendererProps<*>) => <TabViewPager {...props} />,
-    initialLayout: {
-      height: 0,
-      width: 0,
-    },
+    initialLayout,
   };
 
   constructor(props: Props<T>) {
